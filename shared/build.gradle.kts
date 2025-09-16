@@ -23,8 +23,14 @@ kotlin {
     }
     
     sourceSets {
-        commonMain.dependencies {
-            // put your Multiplatform dependencies here
+        val commonMain by getting {
+            dependencies {
+
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
+            }
+            compilerOptions {
+                freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
