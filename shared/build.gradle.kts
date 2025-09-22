@@ -1,13 +1,10 @@
-@file:Suppress("UNUSED_VARIABLE")
-
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    kotlin("multiplatform") version "2.2.10"
+    id("com.android.library")
     kotlin("plugin.serialization") version "2.2.20"
     id("co.touchlab.skie") version "0.10.6"
-
 }
 
 kotlin {
@@ -17,9 +14,11 @@ kotlin {
         }
     }
 
-    listOf(
+    val iosTargets = listOf(
         iosArm64(), iosSimulatorArm64()
-    ).forEach { iosTarget ->
+    )
+
+    iosTargets.forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
