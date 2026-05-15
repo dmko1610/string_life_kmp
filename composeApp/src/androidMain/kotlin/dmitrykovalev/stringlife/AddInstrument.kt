@@ -31,7 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dmitrykovalev.stringlife.models.InstrumentType
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +56,7 @@ fun TypeSelector(selected: InstrumentType, onSelect: (InstrumentType) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun AddInstrumentScreen(onBack: () -> Unit, onSave: (String, InstrumentType, LocalDate?) -> Unit) {
     var name by remember { mutableStateOf("") }
@@ -61,9 +64,15 @@ fun AddInstrumentScreen(onBack: () -> Unit, onSave: (String, InstrumentType, Loc
     var showDate by remember { mutableStateOf(false) }
     var pickedDate: LocalDate? by remember { mutableStateOf(null) }
 
+    val state = rememberDatePickerState()
+
     if (showDate) {
         DatePickerDialog(onDismissRequest = { showDate = false }, confirmButton = {
             TextButton(onClick = {
+                pickedDate = state.selectedDateMillis?.let {
+                    Instant.fromEpochMilliseconds(it)
+                        .toLocalDateTime(kotlinx.datetime.TimeZone.UTC).date
+                }
                 showDate = false
             }) { Text("OK") }
         }, dismissButton = {
