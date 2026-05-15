@@ -78,7 +78,6 @@ fun AddInstrumentScreen(onBack: () -> Unit, onSave: (String, InstrumentType, Loc
         }, dismissButton = {
             TextButton(onClick = { showDate = false }) { Text("Cancel") }
         }) {
-            val state = rememberDatePickerState()
             DatePicker(state = state)
         }
     }

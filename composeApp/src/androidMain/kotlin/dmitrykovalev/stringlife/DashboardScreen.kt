@@ -65,13 +65,6 @@ fun DashboardScreen(
                 }
             }
         }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            color = MaterialTheme.colorScheme.background
-        ) { }
     }
 }
 
