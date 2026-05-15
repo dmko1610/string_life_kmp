@@ -1,5 +1,6 @@
 package dmitrykovalev.stringlife.viewmodel
 
+import dmitrykovalev.stringlife.models.InstrumentType
 import dmitrykovalev.stringlife.repository.InstrumentEntity
 import dmitrykovalev.stringlife.repository.InstrumentRepository
 import kotlinx.coroutines.CoroutineScope
