@@ -1,0 +1,27 @@
+CREATE TABLE instruments (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    last_string_change_date TEXT AS kotlinx.datetime.LocalDate,
+    updated_at INTEGER NOT NULL
+);
+
+insertInstrument:
+INSERT INTO instruments(id, name, type, last_string_change_date, updated_at)
+VALUES (?, ?, ?, ?, ?);
+
+selectAllInstruments:
+SELECT * FROM instruments
+ORDER BY name;
+
+selectInstrumentById:
+SELECT * FROM instruments
+WHERE id = ?;
+
+updateInstrument:
+UPDATE instruments
+SET name = ?, type = ?, last_string_change_date = ?, updated_at = ?
+WHERE id = ?;
+
+deleteInstrument:
+DELETE FROM instruments WHERE id = ?;

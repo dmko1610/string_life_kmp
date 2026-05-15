@@ -5,6 +5,7 @@ plugins {
     id("com.android.library")
     kotlin("plugin.serialization") version "2.2.20"
     id("co.touchlab.skie") version "0.10.6"
+    id("app.cash.sqldelight") version "2.1.0"
 }
 
 kotlin {
@@ -41,6 +42,9 @@ kotlin {
             implementation("io.ktor:ktor-client-core:${ktorVersion}")
             implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
             implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
+            implementation("app.cash.sqldelight:runtime:2.1.0")
+            implementation("app.cash.sqldelight:coroutines-extensions:2.1.0")
+
             compilerOptions {
                 freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
             }
@@ -48,14 +52,24 @@ kotlin {
 
         androidMain.dependencies {
             implementation("io.ktor:ktor-client-android:${ktorVersion}")
+            implementation("app.cash.sqldelight:android-driver:2.1.0")
         }
 
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:${ktorVersion}")
+            implementation("app.cash.sqldelight:native-driver:2.1.0")
         }
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("StringLifeDb") {
+            packageName.set("dmitrykovalev.stringlife.db")
         }
     }
 }
