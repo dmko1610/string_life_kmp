@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     kotlin("multiplatform") version "2.2.10"
@@ -6,6 +7,7 @@ plugins {
     kotlin("plugin.serialization") version "2.2.20"
     id("co.touchlab.skie") version "0.10.6"
     id("app.cash.sqldelight") version "2.1.0"
+    id("com.codingfeline.buildkonfig") version "0.15.2"
 }
 
 kotlin {
@@ -83,5 +85,21 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
+}
+
+buildkonfig {
+    packageName = "dmitrykovalev.stringlife"
+    defaultConfigs {
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "BASE_URL",
+            localProperties.getProperty("BASE_URL", "")
+        )
     }
 }
