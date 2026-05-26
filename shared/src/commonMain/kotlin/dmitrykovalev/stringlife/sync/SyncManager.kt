@@ -9,22 +9,23 @@ class SyncManager(
     private val repository: InstrumentRepository, private val apiClient: InstrumentApiClient
 ) {
     suspend fun sync() {
-        try {
-            val unsynced = repository.getUnsynced()
-            for (instrument in unsynced) {
-                try {
-                    apiClient.create(
-                        InstrumentRequestDto(
-                            name = instrument.name,
-                            type = instrument.type.name,
-                            lastStringChangeDate = instrument.lastStringChangeDate?.toString(),
-                        )
+        val unsynced = repository.getUnsynced()
+        var lastError: Exception? = null
+
+        for (instrument in unsynced) {
+            try {
+                apiClient.create(
+                    InstrumentRequestDto(
+                        name = instrument.name,
+                        type = instrument.type.name,
+                        lastStringChangeDate = instrument.lastStringChangeDate?.toString(),
                     )
-                    repository.markSynced(instrument.id, Clock.System.now().toEpochMilliseconds())
-                } catch (e: Exception) {
-                }
+                )
+                repository.markSynced(instrument.id, Clock.System.now().toEpochMilliseconds())
+            } catch (e: Exception) {
+                lastError = e
             }
-        } catch (e: Exception) {
         }
+        lastError?.let { throw it }
     }
 }

@@ -15,11 +15,15 @@ import kotlinx.datetime.LocalDate
 
 sealed class UiState {
     object Loading : UiState()
-    data class Success(val instruments: List<InstrumentEntity>) : UiState()
+    data class Success(val instruments: List<InstrumentEntity>, val syncError: String? = null) :
+        UiState()
+
     data class Error(val message: String) : UiState()
 }
 
-class InstrumentViewModel(private val repository: InstrumentRepository, private val syncManager: SyncManager) {
+class InstrumentViewModel(
+    private val repository: InstrumentRepository, private val syncManager: SyncManager
+) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
@@ -27,13 +31,16 @@ class InstrumentViewModel(private val repository: InstrumentRepository, private 
 
     init {
         loadInstruments()
+        scope.launch { runSync() }
     }
 
     private fun loadInstruments() {
         scope.launch {
             try {
                 repository.watchAll().collect { instruments ->
-                    _uiState.value = UiState.Success(instruments)
+                    val current = _uiState.value
+                    val syncError = (current as? UiState.Success)?.syncError
+                    _uiState.value = UiState.Success(instruments, syncError)
                 }
             } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.message ?: "Unknown error")
@@ -44,19 +51,37 @@ class InstrumentViewModel(private val repository: InstrumentRepository, private 
     fun addInstrument(name: String, type: InstrumentType, lastStringChangeDate: LocalDate?) {
         scope.launch {
             repository.addInstrument(name, type, lastStringChangeDate)
-            syncManager.sync()
+            runSync()
         }
     }
 
     fun deleteInstrument(id: String) {
         scope.launch {
             repository.deleteInstrument(id)
-            syncManager.sync()
+            runSync()
         }
     }
 
     fun onCleared() {
         scope.cancel()
+    }
+
+    fun clearSyncError() {
+        val current = _uiState.value
+        if (current is UiState.Success) {
+            _uiState.value = current.copy(syncError = null)
+        }
+    }
+
+    private suspend fun runSync() {
+        try {
+            syncManager.sync()
+        } catch (e: Exception) {
+            val current = _uiState.value
+            if (current is UiState.Success) {
+                _uiState.value = current.copy(syncError = "Sync failed. Changes saved locally")
+            }
+        }
     }
 
 }

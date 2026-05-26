@@ -5,6 +5,16 @@ import SwiftUI
 class InstrumentState: ObservableObject {
     @Published var uiState: UiState? = nil
     private let viewModel = ServiceLocator.shared.instrumentViewModel
+    var syncError: String? {
+        if case .success(let s) = onEnum(of: uiState) {
+            return s.syncError as String?
+        }
+        return nil
+    }
+
+    func clearSyncError() {
+        viewModel.clearSyncError()
+    }
 
     init() {
         Task {
@@ -72,6 +82,16 @@ struct DashboardView: View {
             }
         }
         .navigationTitle("Dashboard")
+        .alert(
+            "Sync failed",
+            isPresented: Binding(
+                get: { state.syncError != nil },
+                set: { if !$0 { state.clearSyncError() } }
+            )
+        ) { Button("OK", role: .cancel) {}
+        } message: {
+            Text(state.syncError ?? "")
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink(destination: AddInstrumentView()) {

@@ -1,19 +1,10 @@
-import SwiftUI
 import Shared
+import SwiftUI
 
-@main
-struct iOSApp: App {
+@main struct iOSApp: App {
     init() {
         let driverFactory = DriverFactory()
         ServiceLocator.shared.doInit(driverFactory: driverFactory)
-        Task {
-            try? await ServiceLocator.shared.syncManager.sync()
-        }
     }
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
+    var body: some Scene { WindowGroup { ContentView() } }
 }

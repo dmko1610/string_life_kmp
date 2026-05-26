@@ -17,7 +17,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         ServiceLocator.init(DriverFactory(this))
-        lifecycleScope.launch { ServiceLocator.syncManager.sync() }
         setContent {
             App()
         }
