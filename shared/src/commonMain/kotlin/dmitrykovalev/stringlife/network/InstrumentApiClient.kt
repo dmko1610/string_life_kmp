@@ -15,7 +15,10 @@ import kotlinx.serialization.json.Json
 class InstrumentApiClient(private val baseUrl: String) {
     private val client = HttpClient {
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+            json(Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+            })
         }
     }
 

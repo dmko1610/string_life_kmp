@@ -3,12 +3,13 @@ CREATE TABLE instruments (
     name TEXT NOT NULL,
     type TEXT NOT NULL,
     last_string_change_date TEXT AS kotlinx.datetime.LocalDate,
-    updated_at INTEGER NOT NULL
+    updated_at INTEGER NOT NULL,
+    synced_at INTEGER
 );
 
 insertInstrument:
-INSERT INTO instruments(id, name, type, last_string_change_date, updated_at)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO instruments(id, name, type, last_string_change_date, updated_at, synced_at)
+VALUES (?, ?, ?, ?, ?, ?);
 
 selectAllInstruments:
 SELECT * FROM instruments
@@ -18,9 +19,18 @@ selectInstrumentById:
 SELECT * FROM instruments
 WHERE id = ?;
 
+selectUnsyncedInstruments:
+SELECT * FROM instruments
+WHERE synced_at IS NULL OR synced_at < updated_at;
+
 updateInstrument:
 UPDATE instruments
 SET name = ?, type = ?, last_string_change_date = ?, updated_at = ?
+WHERE id = ?;
+
+markInstrumentSynced:
+UPDATE instruments
+SET synced_at = ?
 WHERE id = ?;
 
 deleteInstrument:

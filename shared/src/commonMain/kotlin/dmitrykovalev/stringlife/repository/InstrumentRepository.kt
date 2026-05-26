@@ -19,7 +19,8 @@ data class InstrumentEntity(
     val name: String,
     val type: InstrumentType,
     val lastStringChangeDate: LocalDate?,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val syncedAt: Long?
 )
 
 class InstrumentRepository(private val db: StringLifeDb) {
@@ -39,8 +40,16 @@ class InstrumentRepository(private val db: StringLifeDb) {
             name = name,
             type = type.name,
             last_string_change_date = lastStringChangeDate,
-            updated_at = Clock.System.now().toEpochMilliseconds()
+            updated_at = Clock.System.now().toEpochMilliseconds(),
+            synced_at = null
         )
+    }
+
+    fun getUnsynced(): List<InstrumentEntity> =
+        db.instrumentQueries.selectUnsyncedInstruments().executeAsList().map { it.toEntity() }
+
+    fun markSynced(id: String, syncedAt: Long) {
+        db.instrumentQueries.markInstrumentSynced(syncedAt, id)
     }
 
     fun deleteInstrument(id: String) {
@@ -52,6 +61,7 @@ class InstrumentRepository(private val db: StringLifeDb) {
         name = name,
         type = InstrumentType.valueOf(type),
         lastStringChangeDate = last_string_change_date,
-        updatedAt = updated_at
+        updatedAt = updated_at,
+        syncedAt = synced_at
     )
 }

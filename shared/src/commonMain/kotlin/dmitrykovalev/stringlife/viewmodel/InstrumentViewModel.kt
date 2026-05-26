@@ -3,6 +3,7 @@ package dmitrykovalev.stringlife.viewmodel
 import dmitrykovalev.stringlife.models.InstrumentType
 import dmitrykovalev.stringlife.repository.InstrumentEntity
 import dmitrykovalev.stringlife.repository.InstrumentRepository
+import dmitrykovalev.stringlife.sync.SyncManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,7 +19,7 @@ sealed class UiState {
     data class Error(val message: String) : UiState()
 }
 
-class InstrumentViewModel(private val repository: InstrumentRepository) {
+class InstrumentViewModel(private val repository: InstrumentRepository, private val syncManager: SyncManager) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
@@ -43,12 +44,14 @@ class InstrumentViewModel(private val repository: InstrumentRepository) {
     fun addInstrument(name: String, type: InstrumentType, lastStringChangeDate: LocalDate?) {
         scope.launch {
             repository.addInstrument(name, type, lastStringChangeDate)
+            syncManager.sync()
         }
     }
 
     fun deleteInstrument(id: String) {
         scope.launch {
             repository.deleteInstrument(id)
+            syncManager.sync()
         }
     }
 
